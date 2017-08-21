@@ -101,7 +101,7 @@ namespace CameraControlSample
             if (!cameraControl.CameraCreated)
                 return;
 
-            ResolutionList resolutions = Camera.GetResolutionList(cameraControl.Moniker);
+            CaptureModeList resolutions = Camera.GetResolutionList(cameraControl.Moniker);
 
             if (resolutions == null)
                 return;
@@ -112,7 +112,7 @@ namespace CameraControlSample
             {
                 comboBoxResolutionList.Items.Add(resolutions[index].ToString());
 
-                if (resolutions[index].CompareTo(cameraControl.Resolution) == 0)
+                if (resolutions[index].Equals(cameraControl.Resolution))
                 {
                     index_to_select = index;
                 }
@@ -151,19 +151,13 @@ namespace CameraControlSample
             {
                 return;
             }
-            ResolutionList resolutions = Camera.GetResolutionList(cameraControl.Moniker);
+            CaptureModeList resolutions = Camera.GetResolutionList(cameraControl.Moniker);
 
             if (resolutions == null)
                 return; 
 
             if (comboBoxResolutionIndex >= resolutions.Count)
                 return; // throw
-
-            if (0 == resolutions[comboBoxResolutionIndex].CompareTo(cameraControl.Resolution))
-            {
-                // this resolution is already selected
-                return;
-            }
 
             // Recreate camera
             //SetCamera(_Camera.Moniker, resolutions[comboBoxResolutionIndex]);

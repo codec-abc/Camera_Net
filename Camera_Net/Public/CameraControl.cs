@@ -65,7 +65,7 @@ namespace Camera_NET
         /// </summary>
         /// <param name="moniker">Moniker (device identification) of camera.</param>
         /// <param name="resolution">Resolution of camera's output.</param>
-        public void SetCamera(IMoniker moniker, Resolution resolution)
+        public void SetCamera(IMoniker moniker, CaptureMode resolution)
         {
             // Close current if it was opened
             CloseCamera();
@@ -84,7 +84,7 @@ namespace Camera_NET
 
             if (resolution != null)
             {
-                _Camera.Resolution = resolution;
+                _Camera.CaptureMode = resolution;
             }
 
             // Initialize
@@ -161,19 +161,19 @@ namespace Camera_NET
         /// <seealso cref="ResolutionListRGB"/>
         [Browsable(false)] // hide from property browser
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] // do not serialize to code ever
-        public Resolution Resolution
+        public CaptureMode Resolution
         {
             get
             {
                 _ThrowIfCameraWasNotCreated();
 
-                return _Camera.Resolution;
+                return _Camera.CaptureMode;
             }
             set
             {
                 _ThrowIfCameraWasNotCreated();
 
-                _Camera.Resolution = value;
+                _Camera.CaptureMode = value;
             }
         }
 
@@ -182,13 +182,13 @@ namespace Camera_NET
         /// </summary>        
         [Browsable(false)] // hide from property browser
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)] // do not serialize to code ever
-        public ResolutionList ResolutionListRGB
+        public CaptureModeList ResolutionListRGB
         {
             get
             {
                 _ThrowIfCameraWasNotCreated();
 
-                return _Camera.ResolutionListRGB;
+                return _Camera.CaptureModeList;
             }
         }
 
@@ -556,7 +556,7 @@ namespace Camera_NET
         /// </summary>
         /// <param name="moniker">Moniker (device identification) of camera.</param>
         /// <returns>List of resolutions with RGB color system of device</returns>
-        public static ResolutionList GetResolutionList(IMoniker moniker)
+        public static CaptureModeList GetResolutionList(IMoniker moniker)
         {
             return Camera.GetResolutionList(moniker);
         }

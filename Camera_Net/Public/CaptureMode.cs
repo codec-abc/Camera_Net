@@ -23,6 +23,7 @@ License along with this library. If not, see <http://www.gnu.org/licenses/>.
 
 namespace Camera_NET
 {
+    using DirectShowLib;
     #region Using directives
     using System;
     using System.Collections.Generic;
@@ -34,7 +35,7 @@ namespace Camera_NET
     /// 
     /// <author> free5lot (free5lot@yandex.ru) </author>
     /// <version> 2013.10.16 </version>
-    public class Resolution : IComparable<Resolution>, IEquatable<Resolution>
+    public class CaptureMode : IEquatable<CaptureMode>
     {
         /// <summary>
         /// Width of frame of video output.
@@ -47,71 +48,59 @@ namespace Camera_NET
         public int Height { set; get; }
 
         /// <summary>
-        /// Constructor for <see cref="Resolution"/> class.
+        /// Framerate of the video output.
+        /// </summary>
+        public float Framerate { set; get; }
+
+        /// <summary>
+        /// Media sub type of the video output.
+        /// </summary>
+        public Guid MediaSubType { set; get; }
+
+        /// <summary>
+        /// Constructor for <see cref="CaptureMode"/> class.
         /// </summary>
         /// <param name="width">Width of frame of video output.</param>
         /// <param name="height">Height of frame of video output.</param>
-        public Resolution(int width, int height)
+        /// <param name="framerate">Framerate of the video output.</param>
+        /// <param name="mediaSubType">Media sub type of the video output</param>
+        public CaptureMode(int width, int height, float framerate, Guid mediaSubType)
         {
             Width = width;
             Height = height;
+            Framerate = framerate;
+            MediaSubType = mediaSubType;
         }
-
+        
         /// <summary>
-        /// Comparator for IComparable<Resolution>
-        /// </summary>
-        /// <param name="y">Resolution we should compare to.</param>
-        public int CompareTo(Resolution y)
-        {
-            Resolution x = this;
-
-            if (x == null)
-            {
-                if (y == null)
-                    return 0; // If x is null and y is null, they're equal. 
-                else
-                    return -1; // If x is null and y is not null, y is greater. 
-            }
-            else
-            {
-                // If x is not null and y is null, x is greater.
-                if (y == null)
-                    return 1;
-            }
-
-            // Main comparation
-            // x and y are not null
-            if (x.Width > y.Width)
-                return 1;
-            else
-            if (x.Width < y.Width)
-                return -1;
-            else
-                return x.Height.CompareTo(y.Height);  //x.Width == y.Width
-        }
-
-        /// <summary>
-        /// To String convertion
+        /// To String conversion
         /// </summary>
         /// <returns>String the object was converted to</returns>
         public override string ToString()
         {
             // String representation.
-            return Width.ToString() + "x" + Height.ToString();
+            var encodingName = "Unknown";
+
+            if (DirectShowLib.MediaSubType.EncodingToName.ContainsKey(MediaSubType))
+            {
+                encodingName = DirectShowLib.MediaSubType.EncodingToName[MediaSubType];
+            }
+
+            return Width.ToString() + "x" + Height.ToString() + " @" + Framerate.ToString("0") + " fps, in " + encodingName;
         }
 
         /// <summary>
-        /// Makes a clone of resolution.
+        /// Makes a clone of Capture Mode.
         /// </summary>
         /// <remarks>Clone is not connected with original object via refs.</remarks>
         /// <returns>Clone of object</returns>
-        public Resolution Clone()
+        public CaptureMode Clone()
         {
-            Resolution copy = new Resolution(Width, Height);
+            CaptureMode copy = new CaptureMode(Width, Height, Framerate, MediaSubType);
             return copy;
         }
 
-        public bool Equals(Resolution other)
+        public bool Equals(CaptureMode other)
         {
             if (other == null)
                 return false;
@@ -119,6 +108,16 @@ namespace Camera_NET
             if (this.Height != other.Height ||
                 this.Width  != other.Width)
                 return false;
+
+            if (this.Framerate != other.Framerate)
+            {
+                return false;
+            }
+
+            if (this.MediaSubType != other.MediaSubType)
+            {
+                return false;
+            }
 
             return true;
         }

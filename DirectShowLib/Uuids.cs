@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace DirectShowLib
@@ -77,7 +78,7 @@ namespace DirectShowLib
     {
     }
 
-  
+
     /// <summary>
     /// CLSID_FileSource
     /// </summary>
@@ -1561,16 +1562,16 @@ namespace DirectShowLib
         public static readonly Guid AnalogVideo_SECAM_L = new Guid(0x0482ddf6, 0x7817, 0x11cf, 0x8a, 0x03, 0x00, 0xaa, 0x00, 0x6e, 0xcb, 0x65);
 
         /// <summary> not in uuids.h </summary>
-        public static readonly Guid I420    = new Guid(0x30323449, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
+        public static readonly Guid I420 = new Guid(0x30323449, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
 
         /// <summary> WMMEDIASUBTYPE_VIDEOIMAGE </summary>
-        public static readonly Guid VideoImage    = new Guid(0x1d4a45f2, 0xe5f6, 0x4b44, 0x83, 0x88, 0xf0, 0xae, 0x5c, 0x0e, 0x0c, 0x37);
+        public static readonly Guid VideoImage = new Guid(0x1d4a45f2, 0xe5f6, 0x4b44, 0x83, 0x88, 0xf0, 0xae, 0x5c, 0x0e, 0x0c, 0x37);
 
         /// <summary> WMMEDIASUBTYPE_MPEG2_VIDEO </summary>
-        public static readonly Guid Mpeg2Video    = new Guid(0xe06d8026, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x5f, 0x6c, 0xbb, 0xea);
+        public static readonly Guid Mpeg2Video = new Guid(0xe06d8026, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x5f, 0x6c, 0xbb, 0xea);
 
         /// <summary> WMMEDIASUBTYPE_WebStream </summary>
-        public static readonly Guid WebStream    = new Guid(0x776257d4, 0xc627, 0x41cb, 0x8f, 0x81, 0x7a, 0xc7, 0xff, 0x1c, 0x40, 0xcc);
+        public static readonly Guid WebStream = new Guid(0x776257d4, 0xc627, 0x41cb, 0x8f, 0x81, 0x7a, 0xc7, 0xff, 0x1c, 0x40, 0xcc);
 
         /// <summary> MEDIASUBTYPE_MPEG2_AUDIO </summary>
         public static readonly Guid Mpeg2Audio = new Guid(0xe06d802b, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x5f, 0x6c, 0xbb, 0xea);
@@ -1627,22 +1628,22 @@ namespace DirectShowLib
         public static readonly Guid P208 = new Guid(0x38303250, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
 
         /// <summary> MEDIASUBTYPE_P210 </summary>
-        public static readonly Guid P210 = new Guid(0x38303250, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
+        public static readonly Guid P210 = new Guid(0x30313250, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
 
         /// <summary> MEDIASUBTYPE_P216 </summary>
-        public static readonly Guid P216 = new Guid(0x38303250, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
+        public static readonly Guid P216 = new Guid(0x36313250, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
 
         /// <summary> MEDIASUBTYPE_P010 </summary>
-        public static readonly Guid P010 = new Guid(0x38303250, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
+        public static readonly Guid P010 = new Guid(0x30313050, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
 
         /// <summary> MEDIASUBTYPE_P016 </summary>
-        public static readonly Guid P016 = new Guid(0x38303250, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
+        public static readonly Guid P016 = new Guid(0x36313050, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
 
         /// <summary> MEDIASUBTYPE_Y210 </summary>
-        public static readonly Guid Y210 = new Guid(0x38303250, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
+        public static readonly Guid Y210 = new Guid(0x30313259, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
 
         /// <summary> MEDIASUBTYPE_Y216 </summary>
-        public static readonly Guid Y216 = new Guid(0x38303250, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
+        public static readonly Guid Y216 = new Guid(0x36313259, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
 
         /// <summary> MEDIASUBTYPE_P408 </summary>
         public static readonly Guid P408 = new Guid(0x38303450, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
@@ -1661,7 +1662,159 @@ namespace DirectShowLib
 
         /// <summary> MEDIASUBTYPE_CPFilters_Processed </summary>
         public static readonly Guid CPFilters_Processed = new Guid(0x46adbd28, 0x6fd0, 0x4796, 0x93, 0xb2, 0x15, 0x5c, 0x51, 0xdc, 0x4, 0x8d);
-
+        
+        /// <summary>
+        /// Dictionary to find the (human readable) name of a media subtype based on its identifier.
+        /// </summary>
+        public static Dictionary<Guid, String> EncodingToName = new Dictionary<Guid, string>()
+        {
+            { CLPL, "CLPL" },
+            { YUYV, "YUYV" },
+            { IYUV, "IYUV" },
+            { YVU9, "YVU9" },
+            { Y411, "Y411" },
+            { Y41P, "Y41P" },
+            { YUY2, "YUY2" },
+            { YVYU, "YVYU" },
+            { UYVY, "UYVY" },
+            { Y211, "Y211" },
+            { CLJR, "CLJR" },
+            { IF09, "IF09" },
+            { CPLA, "CPLA" },
+            { MJPG, "MJPG" },
+            { TVMJ, "TVMJ" },
+            { WAKE, "WAKE" },
+            { CFCC, "CFCC" },
+            { IJPG, "IJPG" },
+            { PLUM, "PLUM" },
+            { DVCS, "DVCS" },
+            { DVSD, "DVSD" },
+            { MDVF, "MDVF" },
+            { RGB1, "RGB1" },
+            { RGB4, "RGB4" },
+            { RGB8, "RGB8" },
+            { RGB565, "RGB565" },
+            { RGB555, "RGB555" },
+            { RGB24, "RGB24" },
+            { RGB32, "RGB32" },
+            { ARGB1555, "ARGB1555" },
+            { ARGB4444, "ARGB4444" },
+            { ARGB32, "ARGB32" },
+            { A2R10G10B10, "A2R10G10B10" },
+            { A2B10G10R10, "A2B10G10R10" },
+            { AYUV, "AYUV" },
+            { AI44, "AI44" },
+            { IA44, "IA44" },
+            { RGB32_D3D_DX7_RT, "RGB32_D3D_DX7_RT" },
+            { RGB16_D3D_DX7_RT, "RGB16_D3D_DX7_RT" },
+            { ARGB32_D3D_DX7_RT, "ARGB32_D3D_DX7_RT" },
+            { ARGB4444_D3D_DX7_RT, "ARGB4444_D3D_DX7_RT" },
+            { ARGB1555_D3D_DX7_RT, "ARGB1555_D3D_DX7_RT" },
+            { RGB32_D3D_DX9_RT, "RGB32_D3D_DX9_RT" },
+            { RGB16_D3D_DX9_RT, "RGB16_D3D_DX9_RT" },
+            { ARGB32_D3D_DX9_RT, "ARGB32_D3D_DX9_RT" },
+            { ARGB4444_D3D_DX9_RT, "ARGB4444_D3D_DX9_RT" },
+            { ARGB1555_D3D_DX9_RT, "ARGB1555_D3D_DX9_RT" },
+            { YV12, "YV12" },
+            { NV12, "NV12" },
+            { IMC1, "IMC1" },
+            { IMC2, "IMC2" },
+            { IMC3, "IMC3" },
+            { IMC4, "IMC4" },
+            { S340, "S340" },
+            { S342, "S342" },
+            { Overlay, "Overlay" },
+            { MPEG1Packet, "MPEG1Packet" },
+            { MPEG1Payload, "MPEG1Payload" },
+            { MPEG1AudioPayload, "MPEG1AudioPayload" },
+            { MPEG1SystemStream, "MPEG1SystemStream" },
+            { MPEG1System, "MPEG1System" },
+            { MPEG1VideoCD, "MPEG1VideoCD" },
+            { MPEG1Video, "MPEG1Video" },
+            { MPEG1Audio, "MPEG1Audio" },
+            { Avi, "Avi" },
+            { Asf, "Asf" },
+            { QTMovie, "QTMovie" },
+            { QTRpza, "QTRpza" },
+            { QTSmc, "QTSmc" },
+            { QTRle, "QTRle" },
+            { QTJpeg, "QTJpeg" },
+            { PCMAudio_Obsolete, "PCMAudio_Obsolete" },
+            { PCM, "PCM" },
+            { WAVE, "WAVE" },
+            { AU, "AU" },
+            { AIFF, "AIFF" },
+            { dvhd, "dvhd" },
+            { dvsl, "dvsl" },
+            { dv25, "dv25" },
+            { dv50, "dv50" },
+            { dvh1, "dvh1" },
+            { Line21_BytePair, "Line21_BytePair" },
+            { Line21_GOPPacket, "Line21_GOPPacket" },
+            { Line21_VBIRawData, "Line21_VBIRawData" },
+            { TELETEXT, "TELETEXT" },
+            { WSS, "WSS" },
+            { VPS, "VPS" },
+            { DRM_Audio, "DRM_Audio" },
+            { IEEE_FLOAT, "IEEE_FLOAT" },
+            { DOLBY_AC3_SPDIF, "DOLBY_AC3_SPDIF" },
+            { RAW_SPORT, "RAW_SPORT" },
+            { SPDIF_TAG_241h, "SPDIF_TAG_241h" },
+            { DssVideo, "DssVideo" },
+            { DssAudio, "DssAudio" },
+            { VPVideo, "VPVideo" },
+            { VPVBI, "VPVBI" },
+            { AnalogVideo_NTSC_M, "AnalogVideo_NTSC_M" },
+            { AnalogVideo_PAL_B, "AnalogVideo_PAL_B" },
+            { AnalogVideo_PAL_D, "AnalogVideo_PAL_D" },
+            { AnalogVideo_PAL_G, "AnalogVideo_PAL_G" },
+            { AnalogVideo_PAL_H, "AnalogVideo_PAL_H" },
+            { AnalogVideo_PAL_I, "AnalogVideo_PAL_I" },
+            { AnalogVideo_PAL_M, "AnalogVideo_PAL_M" },
+            { AnalogVideo_PAL_N, "AnalogVideo_PAL_N" },
+            { AnalogVideo_PAL_N_COMBO, "AnalogVideo_PAL_N_COMBO" },
+            { AnalogVideo_SECAM_B, "AnalogVideo_SECAM_B" },
+            { AnalogVideo_SECAM_D, "AnalogVideo_SECAM_D" },
+            { AnalogVideo_SECAM_G, "AnalogVideo_SECAM_G" },
+            { AnalogVideo_SECAM_H, "AnalogVideo_SECAM_H" },
+            { AnalogVideo_SECAM_K, "AnalogVideo_SECAM_K" },
+            { AnalogVideo_SECAM_K1, "AnalogVideo_SECAM_K1" },
+            { AnalogVideo_SECAM_L, "AnalogVideo_SECAM_L" },
+            { I420   , "I420   " },
+            { VideoImage   , "VideoImage   " },
+            { Mpeg2Video   , "Mpeg2Video   " },
+            { WebStream   , "WebStream   " },
+            { Mpeg2Audio, "Mpeg2Audio" },
+            { DolbyAC3, "DolbyAC3" },
+            { DvbSI, "DvbSI" },
+            { AtscSI, "AtscSI" },
+            { Mpeg2Data, "Mpeg2Data" },
+            { Mpeg2Program, "Mpeg2Program" },
+            { Mpeg2Transport, "Mpeg2Transport" },
+            { Mpeg2TransportStride, "Mpeg2TransportStride" },
+            { None, "None" },
+            { H264, "H264" },
+            { NV24, "NV24" },
+            { Data708_608, "Data708_608" },
+            { DtvCcData, "DtvCcData" },
+            { DVB_Subtitles, "DVB_Subtitles" },
+            { ISDB_Captions, "ISDB_Captions" },
+            { ISDB_Superimpose, "ISDB_Superimpose" },
+            { NV11, "NV11" },
+            { P208, "P208" },
+            { P210, "P210" },
+            { P216, "P216" },
+            { P010, "P010" },
+            { P016, "P016" },
+            { Y210, "Y210" },
+            { Y216, "Y216" },
+            { P408, "P408" },
+            { CC_Container, "CC_Container" },
+            { VBI, "VBI" },
+            { XDS, "XDS" },
+            { ETDTFilter_Tagged, "ETDTFilter_Tagged" },
+            { CPFilters_Processed, "CPFilters_Processed" }
+        };
     }
 
     static public class FormatType
@@ -1741,7 +1894,7 @@ namespace DirectShowLib
         public static readonly Guid SampleLiveStreamtime = new Guid(0x892cd111, 0x72f3, 0x411d, 0x8b, 0x91, 0xa9, 0xe9, 0x12, 0x3a, 0xc2, 0x9a);
 
         /// <summary> DSATTRIB_WMDRMProtectionInfo </summary>
-        public static readonly Guid WMDRMProtectionInfo = new Guid(0x40749583, 0x6b9d, 0x4eec, 0xb4, 0x3c, 0x67, 0xa1, 0x80, 0x1e, 0x1a, 0x9b );
+        public static readonly Guid WMDRMProtectionInfo = new Guid(0x40749583, 0x6b9d, 0x4eec, 0xb4, 0x3c, 0x67, 0xa1, 0x80, 0x1e, 0x1a, 0x9b);
 
         /// <summary> DSATTRIB_BadSampleInfo </summary>
         public static readonly Guid BadSampleInfo = new Guid(0xe4846dda, 0x5838, 0x42b4, 0xb8, 0x97, 0x6f, 0x7e, 0x5f, 0xaa, 0x2f, 0x2f);

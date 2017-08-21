@@ -68,14 +68,14 @@ namespace Camera_NET
         private IMoniker _Moniker = null;
 
         /// <summary>
-        /// Private field. Use the public property <see cref="Resolution"/> for access to this value.
+        /// Private field. Use the public property <see cref="CaptureMode"/> for access to this value.
         /// </summary>
-        private Resolution _Resolution = null;
+        private CaptureMode _CaptureMode = null;
 
         /// <summary>
-        /// Private field. Use the public property <see cref="ResolutionList"/> for access to this value.
+        /// Private field. Use the public property <see cref="Camera_NET.CaptureModeList"/> for access to this value.
         /// </summary>
-        private ResolutionList _ResolutionList = new ResolutionList();
+        private CaptureModeList _CaptureModeList = new CaptureModeList();
 
         /// <summary>
         /// Private field. Use the public property <see cref="MixerEnabled"/> for access to this value.
@@ -281,26 +281,26 @@ namespace Camera_NET
         /// <summary>
         /// Gets or sets a resolution of camera's output.
         /// </summary>
-        /// <seealso cref="ResolutionListRGB"/>
-        public Resolution Resolution
+        /// <seealso cref="CaptureModeList"/>
+        public CaptureMode CaptureMode
         {
-            get { return _Resolution; }
+            get { return _CaptureMode; }
             set
             {
                 // Change of resolution is not allowed after graph's built
                 if (_bGraphIsBuilt)
                     throw new Exception(@"Change of resolution is not allowed after graph's built.");
 
-                _Resolution = value;
+                _CaptureMode = value;
             }
         }
 
         /// <summary>
-        /// Gets a list of available resolutions (in RGB format).
+        /// Gets a list of available capture mode (in RGB format).
         /// </summary>        
-        public ResolutionList ResolutionListRGB
+        public CaptureModeList CaptureModeList
         {
-            get { return _ResolutionList; }
+            get { return _CaptureModeList; }
         }
 
         /// <summary>
@@ -485,11 +485,11 @@ namespace Camera_NET
         /// </summary>
         /// <param name="moniker">Moniker (device identification) of camera.</param>
         /// <returns>List of resolutions with RGB color system of device</returns>
-        public static ResolutionList GetResolutionList(IMoniker moniker)
+        public static CaptureModeList GetResolutionList(IMoniker moniker)
         {
             int hr;
 
-            ResolutionList ResolutionsAvailable = null; //new ResolutionList();
+            CaptureModeList ResolutionsAvailable = null; //new ResolutionList();
 
             // Get the graphbuilder object
             IFilterGraph2 filterGraph = new FilterGraph() as IFilterGraph2;
@@ -501,7 +501,7 @@ namespace Camera_NET
                 hr = filterGraph.AddSourceFilterForMoniker(moniker, null, "Source Filter", out capFilter);
                 DsError.ThrowExceptionForHR(hr);
 
-                ResolutionsAvailable = GetResolutionsAvailable(capFilter);
+                ResolutionsAvailable = GetCaptureModesAvailable(capFilter);
             }
             finally
             {
@@ -979,7 +979,7 @@ namespace Camera_NET
                 //pinSourceCapture = DsFindPin.ByCategory(DX.CaptureFilter, PinCategory.Capture, 0);
                 pinSourceCapture = DsFindPin.ByDirection(DX.CaptureFilter, PinDirection.Output, 0);
 
-                SetSourceParams(pinSourceCapture, _Resolution);
+                _CaptureMode = SetSourceParams(pinSourceCapture, _CaptureMode);
             }
             catch
             {
@@ -992,12 +992,32 @@ namespace Camera_NET
             }
         }
 
+
+        /// <summary>
+        /// Checks if AMMediaType's framerate is appropriate.
+        /// </summary>
+        /// <param name="media_type">Media type to analyze.</param>
+        /// <param name="captureModeDesired">Desired capture mode. Can be null.</param>
+        private static bool IsFramerateAppropriate(AMMediaType media_type, CaptureMode captureModeDesired)
+        {
+            // if we were asked to choose resolution
+            if (captureModeDesired == null)
+                return true;
+
+            VideoInfoHeader videoInfoHeader = new VideoInfoHeader();
+            Marshal.PtrToStructure(media_type.formatPtr, videoInfoHeader);
+
+            var framerate = 10000000.0f / videoInfoHeader.AvgTimePerFrame;
+
+            return framerate == captureModeDesired.Framerate;
+        }
+
         /// <summary>
         /// Checks if AMMediaType's resolution is appropriate for desired resolution.
         /// </summary>
         /// <param name="media_type">Media type to analyze.</param>
         /// <param name="resolution_desired">Desired resolution. Can be null or have 0 for height or width if it's not important.</param>
-        private static bool IsResolutionAppropiate(AMMediaType media_type, Resolution resolution_desired)
+        private static bool IsResolutionAppropriate(AMMediaType media_type, CaptureMode resolution_desired)
         {
             // if we were asked to choose resolution
             if (resolution_desired == null)
@@ -1021,18 +1041,24 @@ namespace Camera_NET
         }
 
         /// <summary>
-        /// Get resoltuin from if AMMediaType's resolution is appropriate for resolution_desired
+        /// Get capture mode from if AMMediaType's resolution is appropriate for resolution_desired
         /// </summary>
         /// <param name="media_type">Media type to analyze.</param>
         /// <param name="resolution_desired">Desired resolution. Can be null or have 0 for height or width if it's not important.</param>
-        private static Resolution GetResolutionForMediaType(AMMediaType media_type)
+        private static CaptureMode GetCaptureForMediaType(AMMediaType media_type)
         {
             VideoInfoHeader videoInfoHeader = new VideoInfoHeader();
             Marshal.PtrToStructure(media_type.formatPtr, videoInfoHeader);
 
-            return new Resolution(videoInfoHeader.BmiHeader.Width, videoInfoHeader.BmiHeader.Height);
+            return 
+                new CaptureMode
+                (
+                    width : videoInfoHeader.BmiHeader.Width, 
+                    height : videoInfoHeader.BmiHeader.Height,
+                    framerate : 10000000.0f / videoInfoHeader.AvgTimePerFrame,
+                    mediaSubType : media_type.subType
+                );
         }
-
 
         /// <summary>
         /// Get bit count for mediatype
@@ -1067,8 +1093,16 @@ namespace Camera_NET
         /// Analyze AMMediaType during enumeration and decide if it's good choice for us.
         /// </summary>
         /// <param name="media_type">Media type to analyze.</param>
-        /// <param name="resolution_desired">Desired resolution.</param>
-        private static void AnalyzeMediaType(AMMediaType media_type, Resolution resolution_desired, out bool bit_count_ok, out bool sub_type_ok, out bool resolution_ok)
+        /// <param name="captureMode_desired">Desired resolution.</param>
+        private static void AnalyzeMediaType
+        (
+            AMMediaType media_type, 
+            CaptureMode captureMode_desired, 
+            out bool bit_count_ok, 
+            out bool sub_type_ok, 
+            out bool resolution_ok,
+            out bool framerate_ok
+        )
         {
             // ---------------------------------------------------
             short bit_count = GetBitCountForMediaType(media_type);
@@ -1077,21 +1111,30 @@ namespace Camera_NET
 
             // ---------------------------------------------------
 
-            // We want (A)RGB32, RGB24 or RGB16 and YUY2.
-            // These have priority
-            // Change this if you're not agree.
-            sub_type_ok =  (
-                media_type.subType == MediaSubType.RGB32 ||
-                media_type.subType == MediaSubType.ARGB32 ||
-                media_type.subType == MediaSubType.RGB24 ||
-                media_type.subType == MediaSubType.RGB16_D3D_DX9_RT ||
-                media_type.subType == MediaSubType.RGB16_D3D_DX7_RT ||
-                media_type.subType == MediaSubType.YUY2);
+            if (captureMode_desired != null)
+            {
+                sub_type_ok = captureMode_desired.MediaSubType == media_type.subType;
+            }
+            else
+            {
+                // We want (A)RGB32, RGB24 or RGB16 and YUY2.
+                // These have priority
+                // Change this if you're not agree.
+                sub_type_ok = (
+                    media_type.subType == MediaSubType.RGB32 ||
+                    media_type.subType == MediaSubType.ARGB32 ||
+                    media_type.subType == MediaSubType.RGB24 ||
+                    media_type.subType == MediaSubType.RGB16_D3D_DX9_RT ||
+                    media_type.subType == MediaSubType.RGB16_D3D_DX7_RT ||
+                    media_type.subType == MediaSubType.YUY2);
+            }
 
             // ---------------------------------------------------
 
             // flag to show if media_type's resolution is appropriate for us
-            resolution_ok = IsResolutionAppropiate(media_type, resolution_desired);
+            resolution_ok = IsResolutionAppropriate(media_type, captureMode_desired);
+
+            framerate_ok = IsFramerateAppropriate(media_type, captureMode_desired);
             // ---------------------------------------------------
         }
 
@@ -1100,7 +1143,8 @@ namespace Camera_NET
         /// </summary>
         /// <param name="pinSourceCapture">Pin of source capture.</param>
         /// <param name="resolution">Resolution to set if possible.</param>
-        private static void SetSourceParams(IPin pinSourceCapture, Resolution resolution_desired)
+        /// <returns>The capture mode used.</returns>
+        private static CaptureMode SetSourceParams(IPin pinSourceCapture, CaptureMode resolution_desired)
         {
             int hr = 0;
 
@@ -1112,6 +1156,10 @@ namespace Camera_NET
 
 
             bool appropriate_media_type_found = false;
+            int width = -1;
+            int height = -1;
+            float framerate = -1;
+            Guid mediaSubTypeId = Guid.Empty;
 
             try
             {
@@ -1142,17 +1190,36 @@ namespace Camera_NET
                     bool bit_count_ok = false;
                     bool sub_type_ok = false;
                     bool resolution_ok = false;
+                    bool framerate_ok = false;
 
-                    AnalyzeMediaType(media_type, resolution_desired, out bit_count_ok, out sub_type_ok, out resolution_ok);
+                    AnalyzeMediaType
+                    (
+                        media_type, 
+                        resolution_desired, 
+                        out bit_count_ok, 
+                        out sub_type_ok, 
+                        out resolution_ok,
+                        out framerate_ok
+                    );
 
                     if (bit_count_ok && resolution_ok)
                     {
-                        if (sub_type_ok)
+                        if (sub_type_ok && framerate_ok)
                         {
                             hr = videoStreamConfig.SetFormat(media_type);
+                            
                             DsError.ThrowExceptionForHR(hr);
 
                             appropriate_media_type_found = true;
+
+                            VideoInfoHeader videoInfoHeader = new VideoInfoHeader();
+                            Marshal.PtrToStructure(media_type.formatPtr, videoInfoHeader);
+
+                            width = videoInfoHeader.BmiHeader.Width;
+                            height = videoInfoHeader.BmiHeader.Height;
+                            framerate = 10000000.0f / videoInfoHeader.AvgTimePerFrame;
+                            mediaSubTypeId = media_type.subType;
+
                             break; // stop search, we've found appropriate media type
                         }
                         else
@@ -1176,8 +1243,17 @@ namespace Camera_NET
                     if (media_type_most_appropriate != null)
                     {
                         // set appropriate RGB format with different resolution
+
                         hr = videoStreamConfig.SetFormat(media_type_most_appropriate);
                         DsError.ThrowExceptionForHR(hr);
+
+                        VideoInfoHeader videoInfoHeader = new VideoInfoHeader();
+                        Marshal.PtrToStructure(media_type.formatPtr, videoInfoHeader);
+
+                        width = videoInfoHeader.BmiHeader.Width;
+                        height = videoInfoHeader.BmiHeader.Height;
+                        framerate = 10000000.0f / videoInfoHeader.AvgTimePerFrame;
+                        mediaSubTypeId = media_type.subType;
                     }
                     else
                     {
@@ -1199,6 +1275,11 @@ namespace Camera_NET
                 FreeSCCMemory(ref pSCC);
 
             }
+            if (appropriate_media_type_found)
+            {
+                return new CaptureMode(width, height, framerate, mediaSubTypeId);
+            }
+            return null;
         }
 
         /// <summary>
@@ -1285,7 +1366,7 @@ namespace Camera_NET
             hr = DX.FilterGraph.AddSourceFilterForMoniker(_Moniker, null, "Source Filter", out DX.CaptureFilter);
             DsError.ThrowExceptionForHR(hr);
 
-            _ResolutionList = GetResolutionsAvailable(DX.CaptureFilter);
+            _CaptureModeList = GetCaptureModesAvailable(DX.CaptureFilter);
         }
 
         /// <summary>
@@ -1364,15 +1445,12 @@ namespace Camera_NET
         /// </summary>
         private void PostActions_Renderer()
         {
-            int hr = 0;
+            //int hr = 0;
 
             // Save resolution
-            int video_width, video_height, arW, arH;
-            hr = DX.WindowlessCtrl.GetNativeVideoSize(out video_width, out video_height, out arW, out arH);
-            DsError.ThrowExceptionForHR(hr);
-
-            _Resolution = new Resolution(video_width, video_height);
-
+            //int video_width, video_height, arW, arH;
+            //hr = DX.WindowlessCtrl.GetNativeVideoSize(out video_width, out video_height, out arW, out arH);
+            //DsError.ThrowExceptionForHR(hr);
 
             // For VMR9
             DX.MixerBitmap = (IVMRMixerBitmap9)DX.VMRenderer;
@@ -1733,9 +1811,9 @@ namespace Camera_NET
         /// Gets available resolutions (which are appropriate for us) for capture filter.
         /// </summary>
         /// <param name="captureFilter">Capture filter for asking for resolution list.</param>
-        private static ResolutionList GetResolutionsAvailable(IBaseFilter captureFilter)
+        private static CaptureModeList GetCaptureModesAvailable(IBaseFilter captureFilter)
         {
-            ResolutionList resolution_list = null;
+            CaptureModeList resolution_list = null;
 
             IPin pRaw = null;
             try
@@ -1792,11 +1870,11 @@ namespace Camera_NET
         /// Gets available resolutions (which are appropriate for us) for capture pin (PinCategory.Capture).
         /// </summary>
         /// <param name="captureFilter">Capture pin (PinCategory.Capture) for asking for resolution list.</param>
-        private static ResolutionList GetResolutionsAvailable(IPin pinOutput)
+        private static CaptureModeList GetResolutionsAvailable(IPin pinOutput)
         {
             int hr = 0;
 
-            ResolutionList ResolutionsAvailable = new ResolutionList();
+            CaptureModeList ResolutionsAvailable = new CaptureModeList();
 
             //ResolutionsAvailable.Clear();
 
@@ -1833,7 +1911,7 @@ namespace Camera_NET
 
                     if (IsBitCountAppropriate(GetBitCountForMediaType(media_type)))
                     {
-                        ResolutionsAvailable.AddIfNew(GetResolutionForMediaType(media_type));
+                        ResolutionsAvailable.AddIfNew(GetCaptureForMediaType(media_type));
                     }
 
                     FreeSCCMemory(ref pSCC);
@@ -1911,22 +1989,22 @@ namespace Camera_NET
             if (pMix == null)
                 throw new Exception(@"The Mixer control is not created.");
 
-            float x_scale = (float)_Resolution.Width / zoomRect.Width;
-            float y_scale = (float)_Resolution.Height / zoomRect.Height;
+            float x_scale = (float)_CaptureMode.Width / zoomRect.Width;
+            float y_scale = (float)_CaptureMode.Height / zoomRect.Height;
 
             NormalizedRect rect = new NormalizedRect
                 (
                 -(float)zoomRect.Left * x_scale,
                 -(float)zoomRect.Top * y_scale,
-                -(float)zoomRect.Right * x_scale + _Resolution.Width * (x_scale + 1),
-                -(float)zoomRect.Bottom * y_scale + _Resolution.Height * (y_scale + 1)
+                -(float)zoomRect.Right * x_scale + _CaptureMode.Width * (x_scale + 1),
+                -(float)zoomRect.Bottom * y_scale + _CaptureMode.Height * (y_scale + 1)
                 );
 
 
-            rect.left /= _Resolution.Width;
-            rect.right /= _Resolution.Width;
-            rect.top /= _Resolution.Height;
-            rect.bottom /= _Resolution.Height;
+            rect.left /= _CaptureMode.Width;
+            rect.right /= _CaptureMode.Width;
+            rect.top /= _CaptureMode.Height;
+            rect.bottom /= _CaptureMode.Height;
 
             //NormalizedRect rect = new NormalizedRect(-1, -1, 2, 2);
 
@@ -2026,8 +2104,8 @@ namespace Camera_NET
             int w = _HostingControl.ClientRectangle.Width;
             int h = _HostingControl.ClientRectangle.Height;
 
-            int video_width  = _Resolution.Width;
-            int video_height = _Resolution.Height;
+            int video_width  = _CaptureMode.Width;
+            int video_height = _CaptureMode.Height;
 
             // Check size of video data, to save original ratio
             int window_width = _HostingControl.ClientRectangle.Width;

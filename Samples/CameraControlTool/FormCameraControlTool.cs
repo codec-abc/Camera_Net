@@ -99,7 +99,7 @@ namespace CameraControlTool
         #region Camera creation and destroy
 
         // Set current camera to camera_device
-        private void SetCamera(IMoniker camera_moniker, Resolution resolution)
+        private void SetCamera(IMoniker camera_moniker, CaptureMode resolution)
         {
             try
             {
@@ -633,19 +633,13 @@ namespace CameraControlTool
             {
                 return;
             }
-            ResolutionList resolutions = Camera.GetResolutionList(cameraControl.Moniker);
+            CaptureModeList resolutions = Camera.GetResolutionList(cameraControl.Moniker);
 
             if (resolutions == null)
                 return; 
 
             if (comboBoxResolutionIndex >= resolutions.Count)
                 return; // throw
-
-            if (0 == resolutions[comboBoxResolutionIndex].CompareTo(cameraControl.Resolution))
-            {
-                // this resolution is already selected
-                return;
-            }
 
             // Recreate camera
             SetCamera(cameraControl.Moniker, resolutions[comboBoxResolutionIndex]);
@@ -659,7 +653,7 @@ namespace CameraControlTool
             if (!cameraControl.CameraCreated)
                 return;
 
-            ResolutionList resolutions = Camera.GetResolutionList(cameraControl.Moniker);
+            CaptureModeList resolutions = Camera.GetResolutionList(cameraControl.Moniker);
 
             if (resolutions == null)
                 return;
@@ -671,7 +665,7 @@ namespace CameraControlTool
             {
                 comboBoxResolutionList.Items.Add(resolutions[index].ToString());
 
-                if (resolutions[index].CompareTo(cameraControl.Resolution) == 0)
+                if (resolutions[index].Equals(cameraControl.Resolution))
                 {
                     index_to_select = index;
                 }
